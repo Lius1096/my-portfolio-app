@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        "ckolkman.vscode-postgres",
+        "uniquevision.vscode-plpgsql-lsp"
+    ]
+}

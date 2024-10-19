@@ -1,0 +1,22 @@
+# Ignorer le fichier .env contenant des informations sensibles
+.env
+
+# Ignorer le dossier node_modules (dépendances Node.js)
+node_modules/
+
+# Ignorer les logs
+logs/
+*.log
+
+# Ignorer les dossiers de build temporaires
+dist/
+build/
+.tmp/
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+
+# Ignorer les configurations locales
+.idea/
+.vscode/
