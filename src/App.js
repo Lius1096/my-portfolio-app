@@ -16,6 +16,8 @@ import Skills from './components/Skills';
 import Reviews from './components/Avis';
 import { Navigate } from 'react-router-dom';
 import ProjectRequestForm from './components/ProjectRequestForm';
+import DeleteUser from './components/DeleteUser';
+import Goodbye from './components/Goodbye';
 
 
 const ProtectedRoute = ({ children }) => {
@@ -44,7 +46,8 @@ const App = () => {
          <Route path="/userdashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
          <Route path="/admindashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
          <Route path="/demande-projet" element={<ProjectRequestForm />} />
-
+         <Route path="/goodbye" element={<Goodbye />} />
+         <Route path="/delete-user" element={<DeleteUser />} />
 
 
       </Routes>

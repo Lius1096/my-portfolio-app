@@ -1166,19 +1166,37 @@ app.put('/user-data', authenticateJWT, upload.single('profilePicture'), async (r
 });
 
 // Route pour supprimer le compte utilisateur
-app.delete('/user-data', authenticateJWT, async (req, res) => {
+app.delete('/user-data', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).send('Non autorisé');
+    }
+
     try {
-        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
-        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        const userId = decoded.id;
 
-        await user.remove(); // Supprimer l'utilisateur
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('Utilisateur non trouvé');
+        }
 
-        res.json({ message: 'Compte utilisateur supprimé avec succès' });
+        console.log('Utilisateur trouvé :', user); // Déboguer l'objet user
+
+        // Essayez d'utiliser deleteOne si remove ne fonctionne pas
+        await User.deleteOne({ _id: userId });
+
+        res.status(200).send('Compte supprimé avec succès');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Erreur lors de la suppression du compte utilisateur');
+        console.error('Erreur lors de la suppression:', error); // Ajoutez cette ligne
+        if (error instanceof mongoose.Error) {
+            return res.status(500).send('Erreur de la base de données');
+        }
+        res.status(500).send('Erreur lors de la suppression de l\'utilisateur');
     }
 });
+
+
 
 
 // Démarrer le serveur

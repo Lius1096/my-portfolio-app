@@ -4,12 +4,14 @@ import ForgotPassword from './ForgotPassword';
 import MesDemandes from './MesDemandes';
 import { FaPlus, FaTrashAlt, FaCamera, FaTimes, FaImage } from 'react-icons/fa';
 import Profil from './Profile';
+import DeleteUser from './DeleteUser'; // Suppression de l'espace en trop
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDeleteUserOpen, setIsDeleteUserOpen] = useState(false);
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   const [isRequestsOpen, setIsRequestsOpen] = useState(false);
   const [isPasswordResetOpen, setIsPasswordResetOpen] = useState(false);
@@ -30,6 +32,7 @@ const UserDashboard = () => {
   const handleProfileToggle = () => setIsProfileOpen(!isProfileOpen);
   const handleProjectFormToggle = () => setIsProjectFormOpen(!isProjectFormOpen);
   const handleRequestsToggle = () => setIsRequestsOpen(!isRequestsOpen);
+  const handleDeleteUserToggle = () => setIsDeleteUserOpen(!isDeleteUserOpen);
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login';
@@ -96,7 +99,7 @@ const UserDashboard = () => {
       {/* Sidebar */}
       <div className="bg-white text-black w-64 p-6 shadow-lg rounded-lg">
         <div className="flex flex-col items-center mb-8">
-        <div className="relative group mb-4 flex justify-center items-center">
+          <div className="relative group mb-4 flex justify-center items-center">
             <img
               src={profilePicturePreview || userData?.profilePicture || '/default-profile.png'}
               alt="Photo"
@@ -126,6 +129,9 @@ const UserDashboard = () => {
           </button>
           <button onClick={handlePasswordResetToggle} className="text-blue-600 hover:underline mt-2">
             Réinitialiser mot de passe
+          </button>
+          <button className="text-red-600 hover:underline mt-2" onClick={handleDeleteUserToggle}>
+            Supprimer mon compte
           </button>
           <button className="text-red-600 hover:underline mt-2" onClick={handleLogout}>
             Déconnexion
@@ -185,6 +191,9 @@ const UserDashboard = () => {
 
         {/* Display Requests */}
         {isRequestsOpen && <MesDemandes />}
+
+        {/* Delete User Confirmation Modal */}
+        {isDeleteUserOpen && <DeleteUser closeModal={handleDeleteUserToggle} />}
 
         {/* Password Reset Modal */}
         {isPasswordResetOpen && <ForgotPassword />}
