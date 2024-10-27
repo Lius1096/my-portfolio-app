@@ -168,24 +168,8 @@ const expertiseSchema = new mongoose.Schema({
 const Expertise = mongoose.model('Expertise', expertiseSchema);
 
 
-// Route pour obtenir les informations utilisateur
-// Route protégée
-app.get('/user-data', authenticateJWT, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
-        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
 
-        // Renvoie les données utilisateur
-        res.json({
-            username: user.username,
-            email: user.email,
-            profilePicture: `http://localhost:5000/${user.profilePicture}`, // Utilisez le chemin correct
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Erreur lors de la récupération des données utilisateur');
-    }
-});
+
   
 
 // Routes CRUD pour les contacts
@@ -1133,6 +1117,67 @@ app.delete('/project-requests/:id', authenticateJWT, async (req, res) => {
     console.error(error); // Log de l'erreur
     res.status(500).json({ message: 'Erreur lors de la soumission de la demande de projet', error });
   }
+});
+
+
+// Route pour obtenir les informations utilisateur
+// Route protégée
+app.get('/user-data', authenticateJWT, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
+        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
+
+        // Renvoie les données utilisateur
+        res.json({
+            username: user.username,
+            email: user.email,
+            profilePicture: `http://localhost:5000/${user.profilePicture}`, // Utilisez le chemin correct
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erreur lors de la récupération des données utilisateur');
+    }
+});
+
+// Route pour mettre à jour les informations utilisateur
+app.put('/user-data', authenticateJWT, upload.single('profilePicture'), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
+        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
+
+        // Mettre à jour les informations
+        user.username = req.body.username || user.username;
+        if (req.file) {
+            user.profilePicture = req.file.path; // Mettez à jour le chemin de l'image
+        }
+
+        await user.save(); // Sauvegarder les modifications
+
+        res.json({
+            message: 'Données utilisateur mises à jour avec succès',
+            username: user.username,
+            email: user.email,
+            profilePicture: `http://localhost:5000/${user.profilePicture}`, // Utilisez le chemin correct
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erreur lors de la mise à jour des données utilisateur');
+    }
+});
+
+// Route pour supprimer le compte utilisateur
+app.delete('/user-data', authenticateJWT, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
+        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
+
+        await user.remove(); // Supprimer l'utilisateur
+
+        res.json({ message: 'Compte utilisateur supprimé avec succès' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erreur lors de la suppression du compte utilisateur');
+    }
 });
 
 

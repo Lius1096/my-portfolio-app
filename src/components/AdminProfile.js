@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const AdminProfile = () => {
-  const [adminData, setAdminData] = useState({ username: '', email: '' });
-  const [formData, setFormData] = useState({ username: '', email: '' });
+  const [adminData, setAdminData] = useState({ username: '', email: '', profileImage: '' });
+  const [formData, setFormData] = useState({ username: '', email: '', profileImage: null });
   const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -16,7 +16,7 @@ const AdminProfile = () => {
       });
       const data = await response.json();
       setAdminData(data);
-      setFormData(data); // Pré-remplir le formulaire avec les données existantes
+      setFormData({ ...data, profileImage: null }); // Pré-remplir le formulaire avec les données existantes
     };
 
     fetchAdminData();
@@ -26,25 +26,35 @@ const AdminProfile = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    setFormData({ ...formData, profileImage: e.target.files[0] });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    
+
     try {
+      const formDataObj = new FormData();
+      formDataObj.append('username', formData.username);
+      formDataObj.append('email', formData.email);
+      if (formData.profileImage) {
+        formDataObj.append('profileImage', formData.profileImage);
+      }
+
       const response = await fetch('http://localhost:5000/admin', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: formDataObj,
       });
 
       if (response.ok) {
         const updatedData = await response.json();
-        setAdminData(updatedData); // Met à jour les données de l'admin
+        setAdminData(updatedData);
         setMessage('Profil mis à jour avec succès.');
-        setEditMode(false); // Quitter le mode édition
+        setEditMode(false);
       } else {
         setMessage('Erreur lors de la mise à jour du profil.');
       }
@@ -56,13 +66,30 @@ const AdminProfile = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl mb-4">Profil de l'Admin</h2>
+
+      {/* Affichage de l'image de profil */}
+      <div className="flex items-center mb-6">
+        {adminData.profileImage ? (
+          <img
+            src={`http://localhost:5000/${adminData.profileImage}`}
+            alt="Photo de profil de l'admin"
+            className="w-24 h-24 rounded-full object-cover border border-gray-300"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+            Aucun image
+          </div>
+        )}
+      </div>
+
       {editMode ? (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="mb-4">
             <label className="block text-gray-700">Nom d'utilisateur</label>
             <input
               type="text"
               name="username"
+              placeholder={adminData.username || "Nom d'utilisateur"}
               value={formData.username}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded"
@@ -74,10 +101,21 @@ const AdminProfile = () => {
             <input
               type="email"
               name="email"
+              placeholder={adminData.email || "Email"}
               value={formData.email}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded"
               required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Photo de profil</label>
+            <input
+              type="file"
+              name="profileImage"
+              onChange={handleImageChange}
+              className="w-full p-2 border border-gray-300 rounded"
+              accept="image/*"
             />
           </div>
           <button

@@ -3,6 +3,7 @@ import ProjectRequestForm from './ProjectRequestForm';
 import ForgotPassword from './ForgotPassword';
 import MesDemandes from './MesDemandes';
 import { FaPlus, FaTrashAlt, FaCamera, FaTimes, FaImage } from 'react-icons/fa';
+import Profil from './Profile';
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -16,33 +17,19 @@ const UserDashboard = () => {
   const [profilePicturePreview, setProfilePicturePreview] = useState('');
   const [formData, setFormData] = useState({ username: '', email: '', profilePicture: null });
 
-  const handlePasswordResetToggle = () => {
-    setIsPasswordResetOpen(!isPasswordResetOpen);
-  };
-
+  const handlePasswordResetToggle = () => setIsPasswordResetOpen(!isPasswordResetOpen);
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
-    if (isEditing) {
-      // Réinitialiser les données du formulaire à celles de l'utilisateur
-      setFormData({ username: userData?.username || '', email: userData?.email || '', profilePicture: null });
-    } else {
-      // Remplir le formulaire avec les données de l'utilisateur
-      setFormData({ username: userData?.username || '', email: userData?.email || '', profilePicture: null });
-    }
+    setFormData({
+      username: userData?.username || '',
+      email: userData?.email || '',
+      profilePicture: null,
+    });
   };
 
-  const handleProfileToggle = () => {
-    setIsProfileOpen(!isProfileOpen);
-  };
-
-  const handleProjectFormToggle = () => {
-    setIsProjectFormOpen(!isProjectFormOpen);
-  };
-
-  const handleRequestsToggle = () => {
-    setIsRequestsOpen(!isRequestsOpen);
-  };
-
+  const handleProfileToggle = () => setIsProfileOpen(!isProfileOpen);
+  const handleProjectFormToggle = () => setIsProjectFormOpen(!isProjectFormOpen);
+  const handleRequestsToggle = () => setIsRequestsOpen(!isRequestsOpen);
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login';
@@ -55,7 +42,7 @@ const UserDashboard = () => {
   };
 
   const handleTakePhoto = () => {
-    // Logique pour ouvrir la caméra et capturer une photo
+    // Logic to open the camera and capture a photo
   };
 
   const handleDeletePhoto = () => {
@@ -65,19 +52,15 @@ const UserDashboard = () => {
     }
   };
 
-  const handlePhotoModalToggle = () => {
-    setIsPhotoModalOpen(!isPhotoModalOpen);
-  };
+  const handlePhotoModalToggle = () => setIsPhotoModalOpen(!isPhotoModalOpen);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Logique pour envoyer les données mises à jour, y compris la photo
-    // Après soumission, fermeture de la modale
+    // Logic to send updated data, including the photo
     setIsPhotoModalOpen(false);
   };
 
   useEffect(() => {
-    // Fonction pour récupérer les données utilisateur
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -86,7 +69,7 @@ const UserDashboard = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/users', {
+        const response = await fetch('http://localhost:5000/user-data', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -94,11 +77,10 @@ const UserDashboard = () => {
           },
         });
 
-        if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des données utilisateur.');
-        }
+        if (!response.ok) throw new Error('Erreur lors de la récupération des données utilisateur.');
 
         const fetchedData = await response.json();
+        console.log(fetchedData); // Debugging line
         setUserData(fetchedData);
         setFormData({ username: fetchedData.username, email: fetchedData.email, profilePicture: null });
       } catch (err) {
@@ -112,13 +94,13 @@ const UserDashboard = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="bg-white text-black w-64 p-6 shadow-lg rounded-lg relative">
+      <div className="bg-white text-black w-64 p-6 shadow-lg rounded-lg">
         <div className="flex flex-col items-center mb-8">
-          <div className="relative group">
+        <div className="relative group mb-4 flex justify-center items-center">
             <img
               src={profilePicturePreview || userData?.profilePicture || '/default-profile.png'}
-              alt="Profile"
-              className="rounded-full w-28 h-28 mb-4 border-2 border-blue-500 object-cover"
+              alt="Photo"
+              className="rounded-full w-32 h-32 border-4 border-blue-500 shadow-md object-cover"
             />
             <label
               onClick={handlePhotoModalToggle}
@@ -129,11 +111,12 @@ const UserDashboard = () => {
             </label>
           </div>
 
-          <h2 className="text-xl font-semibold">{userData?.username}</h2>
-          <h3 className="text-lg">{userData?.email}</h3>
+          {/* User Information Display */}
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">{userData ? userData.username : 'Chargement...'}</h2>
+          <h3 className="text-lg text-gray-600 mb-4">{userData ? userData.email : 'Chargement...'}</h3>
 
           <button className="text-blue-600 hover:underline mt-4" onClick={handleProfileToggle}>
-            Profil
+            Profil Utilisateurs
           </button>
           <button className="text-blue-600 hover:underline mt-2" onClick={handleProjectFormToggle}>
             Soumettre un projet
@@ -155,14 +138,11 @@ const UserDashboard = () => {
         <h1 className="text-3xl font-bold mb-4 text-black text-center">Bienvenue sur votre dashboard</h1>
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        {/* Modale pour le changement de photo */}
+        {/* Modal for changing photo */}
         {isPhotoModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg relative w-80 shadow-lg">
-              <button
-                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-                onClick={handlePhotoModalToggle}
-              >
+              <button className="absolute top-2 right-2 text-gray-600 hover:text-gray-900" onClick={handlePhotoModalToggle}>
                 <FaTimes />
               </button>
               <h2 className="text-xl font-semibold text-center mb-4">Changer la photo de profil</h2>
@@ -185,83 +165,28 @@ const UserDashboard = () => {
                 {profilePicturePreview && (
                   <div className="mt-4">
                     <h3 className="text-gray-700">Aperçu :</h3>
-                    <img
-                      src={profilePicturePreview}
-                      alt="Aperçu de la nouvelle photo"
-                      className="rounded-full w-28 h-28 object-cover"
-                    />
+                    <img src={profilePicturePreview} alt="Aperçu de la nouvelle photo" className="rounded-full w-28 h-28 object-cover" />
                   </div>
                 )}
               </div>
 
-              <button
-                onClick={handleSubmit}
-                className="bg-blue-500 text-white py-2 mt-4 w-full rounded-md hover:bg-blue-600"
-              >
+              <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 mt-4 w-full rounded-md hover:bg-blue-600">
                 Enregistrer
               </button>
             </div>
           </div>
         )}
 
-        {/* Affichage du profil */}
-        {isProfileOpen && (
-          <div className="bg-white p-6 shadow-lg rounded-lg mt-4">
-            <div className="flex items-center mb-4">
-              <img
-                src={profilePicturePreview || userData?.profilePicture || '/default-profile.png'}
-                alt="Profile"
-                className="rounded-full w-16 h-16 mr-4 border-2 border-blue-500 object-cover"
-              />
-              <div>
-                <h2 className="text-xl font-semibold">{userData?.username}</h2>
-                <h3 className="text-lg">{userData?.email}</h3>
-              </div>
-            </div>
+        {/* Display Profile */}
+        {isProfileOpen && <Profil user={userData} isOpen={isProfileOpen} closeModal={handleProfileToggle} />}
 
-            {isEditing ? (
-              <form onSubmit={handleSubmit} className="mt-4">
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="border border-gray-300 p-2 rounded-md w-full mb-4"
-                  placeholder="Nom d'utilisateur"
-                />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="border border-gray-300 p-2 rounded-md w-full mb-4"
-                  placeholder="Email"
-                />
-                <div className="flex justify-between">
-                  <button type="button" className="text-gray-600" onClick={handleEditToggle}>
-                    Annuler
-                  </button>
-                  <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded-md">
-                    Enregistrer
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <button
-                onClick={handleEditToggle}
-                className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4"
-              >
-                Modifier
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Formulaire de demande de projet */}
+        {/* Project Request Form */}
         {isProjectFormOpen && <ProjectRequestForm />}
 
-        {/* Mes demandes */}
+        {/* Display Requests */}
         {isRequestsOpen && <MesDemandes />}
 
-        {/* Réinitialiser mot de passe */}
+        {/* Password Reset Modal */}
         {isPasswordResetOpen && <ForgotPassword />}
       </div>
     </div>
