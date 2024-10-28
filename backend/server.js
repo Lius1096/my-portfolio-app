@@ -19,7 +19,13 @@ require('dotenv').config(); // Chargement des variables d'environnement
 // Si authenticateToken est dans un autre fichier
 
 
+// Middleware pour servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'build')));
 
+// Renvoyer index.html pour toutes les routes non gérées
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // Chargement de la configuration
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
@@ -55,6 +61,7 @@ const checkAdmin = (req, res, next) => {
         return res.status(403).json({ message: 'Accès interdit' }); // L'utilisateur n'est pas autorisé
     }
 };
+
 
 
 // Middleware de session
@@ -1158,13 +1165,7 @@ app.get('/admin-user-profile', authenticateJWT, async (req, res) => {
     }
   });
 
-  // Middleware pour servir les fichiers statiques
-app.use(express.static(path.join(__dirname, 'build')));
-
-// Renvoyer index.html pour toutes les routes non gérées
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
+  
 // Démarrer le serveur
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
