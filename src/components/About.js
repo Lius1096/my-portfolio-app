@@ -11,7 +11,7 @@ const About = () => {
         
         {/* Partie droite avec le titre et le texte */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">About Digital Consulting</h2>
+          <h2 className="text-3xl font-bold mb-4">About KETE Consulting</h2>
           <p className="text-gray-700 text-lg mb-6">
             Je suis un développeur web spécialisé dans la création d’applications front-end modernes. 
             Mon objectif est de créer des expériences utilisateur fluides et engageantes.

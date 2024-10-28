@@ -9,7 +9,7 @@ import Footer from '../components/Footer';
 import Skills from '../components/Skills';
 import Expertises from '../components/Expertises';
 import VisitorCounter from '../components/VisitorCounter';
-import AdminDashboard from '../components/AdminDashboard';
+
 
 
 
@@ -20,7 +20,6 @@ const Home = () => {
       <Hero />
       <About />
       <Expertises />
-      <AdminDashboard />
       <Portfolio />
       <Skills />
       <CVAndSkills />

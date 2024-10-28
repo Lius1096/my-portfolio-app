@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import logo from '../asset/logok.jpeg'; // Assurez-vous que le chemin est correct
 
 const Home = () => {
   const [lastScrollTop, setLastScrollTop] = useState(0);
@@ -39,7 +40,10 @@ const Home = () => {
     <>
       <header className={`bg-primary text-white py-4 shadow-lg sticky top-0 z-50 transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}`}>
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">KETE</h1>
+          <div className="bg-white rounded-full p-1 shadow-md"> {/* Conteneur avec ombre légère */}
+            <img src={logo} alt="KETE" className="h-10 w-10 rounded-full" /> {/* Logo avec classes rondes */}
+          </div>
+          
           <nav>
             <ul className="flex space-x-6">
               <li><a href="home" className="hover:text-accent transition">Accueil</a></li>
