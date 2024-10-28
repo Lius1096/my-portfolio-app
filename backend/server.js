@@ -1173,29 +1173,25 @@ app.delete('/user-data', async (req, res) => {
     }
 
     try {
+        // Vérifiez le token et obtenez l'ID de l'utilisateur
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
         const userId = decoded.id;
 
+        // Trouver l'utilisateur
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).send('Utilisateur non trouvé');
         }
 
-        console.log('Utilisateur trouvé :', user); // Déboguer l'objet user
-
-        // Essayez d'utiliser deleteOne si remove ne fonctionne pas
+        // Supprimer l'utilisateur
         await User.deleteOne({ _id: userId });
 
         res.status(200).send('Compte supprimé avec succès');
     } catch (error) {
-        console.error('Erreur lors de la suppression:', error); // Ajoutez cette ligne
-        if (error instanceof mongoose.Error) {
-            return res.status(500).send('Erreur de la base de données');
-        }
+        console.error(error);
         res.status(500).send('Erreur lors de la suppression de l\'utilisateur');
     }
 });
-
 
 
 
