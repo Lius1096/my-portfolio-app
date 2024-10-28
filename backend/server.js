@@ -1158,6 +1158,13 @@ app.get('/admin-user-profile', authenticateJWT, async (req, res) => {
     }
   });
 
+  // Middleware pour servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Renvoyer index.html pour toutes les routes non gérées
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 // Démarrer le serveur
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
