@@ -168,8 +168,24 @@ const expertiseSchema = new mongoose.Schema({
 const Expertise = mongoose.model('Expertise', expertiseSchema);
 
 
+// Route pour obtenir les informations utilisateur
+// Route protégée
+app.get('/user-data', authenticateJWT, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
+        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
 
-
+        // Renvoie les données utilisateur
+        res.json({
+            username: user.username,
+            email: user.email,
+            profilePicture: `http://localhost:5000/${user.profilePicture}`, // Utilisez le chemin correct
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erreur lors de la récupération des données utilisateur');
+    }
+});
   
 
 // Routes CRUD pour les contacts
@@ -484,14 +500,6 @@ app.get('/userdashboard', authenticateJWT, (req, res) => {
     res.json({ message: 'Bienvenue sur le tableau de bord sécurisé !' });
   });
 
-// Middleware pour vérifier le rôle admin
-const authenticateAdmin = (req, res, next) => {
-    if (req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ error: 'Accès interdit : utilisateur non autorisé' });
-    }
-};
 
 
 // Récupérer tous les projets
@@ -1119,81 +1127,36 @@ app.delete('/project-requests/:id', authenticateJWT, async (req, res) => {
   }
 });
 
-
-// Route pour obtenir les informations utilisateur
-// Route protégée
-app.get('/user-data', authenticateJWT, async (req, res) => {
+// Route pour récupérer les données utilisateur (profil admin)
+app.get('/admin-user-profile', authenticateJWT, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
-        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
-
-        // Renvoie les données utilisateur
-        res.json({
-            username: user.username,
-            email: user.email,
-            profilePicture: `http://localhost:5000/${user.profilePicture}`, // Utilisez le chemin correct
-        });
+      const user = await User.findById(req.user.id); // Utiliser l'ID de l'utilisateur depuis le token
+      if (!user) return res.status(404).send('Utilisateur non trouvé.');
+      res.json(user);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Erreur lors de la récupération des données utilisateur');
+      res.status(500).send('Erreur lors de la récupération des données.');
     }
-});
-
-// Route pour mettre à jour les informations utilisateur
-app.put('/user-data', authenticateJWT, upload.single('profilePicture'), async (req, res) => {
+  });
+  
+  // Route pour mettre à jour les données utilisateur (profil admin)
+  app.put('/admin-user-profile', authenticateJWT, upload.single('profilePicture'), async (req, res) => {
     try {
-        const user = await User.findById(req.user.id); // Assurez-vous que vous avez accès à la base de données
-        if (!user) return res.sendStatus(404); // Utilisateur non trouvé
-
-        // Mettre à jour les informations
-        user.username = req.body.username || user.username;
-        if (req.file) {
-            user.profilePicture = req.file.path; // Mettez à jour le chemin de l'image
-        }
-
-        await user.save(); // Sauvegarder les modifications
-
-        res.json({
-            message: 'Données utilisateur mises à jour avec succès',
-            username: user.username,
-            email: user.email,
-            profilePicture: `http://localhost:5000/${user.profilePicture}`, // Utilisez le chemin correct
-        });
+      const { username, email } = req.body;
+      const updatedData = { username, email };
+  
+      // Si une nouvelle image est téléchargée
+      if (req.file) {
+        updatedData.profilePicture = req.file.path; // Enregistrer le chemin de l'image
+      }
+  
+      const user = await User.findByIdAndUpdate(req.user.id, updatedData, { new: true });
+      if (!user) return res.status(404).send('Utilisateur non trouvé.');
+  
+      res.json(user);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Erreur lors de la mise à jour des données utilisateur');
+      res.status(500).send('Erreur lors de la mise à jour des données.');
     }
-});
-
-// Route pour supprimer le compte utilisateur
-app.delete('/user-data', async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-        return res.status(401).send('Non autorisé');
-    }
-
-    try {
-        // Vérifiez le token et obtenez l'ID de l'utilisateur
-        const decoded = jwt.verify(token, process.env.SECRET_KEY);
-        const userId = decoded.id;
-
-        // Trouver l'utilisateur
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).send('Utilisateur non trouvé');
-        }
-
-        // Supprimer l'utilisateur
-        await User.deleteOne({ _id: userId });
-
-        res.status(200).send('Compte supprimé avec succès');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Erreur lors de la suppression de l\'utilisateur');
-    }
-});
-
-
+  });
 
 // Démarrer le serveur
 app.listen(port, () => {

@@ -1,150 +1,162 @@
 import React, { useState, useEffect } from 'react';
 
 const AdminProfile = () => {
-  const [adminData, setAdminData] = useState({ username: '', email: '', profileImage: '' });
-  const [formData, setFormData] = useState({ username: '', email: '', profileImage: null });
-  const [editMode, setEditMode] = useState(false);
-  const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    profilePicture: null,
+  });
 
-  useEffect(() => {
-    // Fetch admin data from the backend
-    const fetchAdminData = async () => {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/admin', {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      setAdminData(data);
-      setFormData({ ...data, profileImage: null }); // Pré-remplir le formulaire avec les données existantes
-    };
-
-    fetchAdminData();
-  }, []);
+  const [userData, setUserData] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (e) => {
-    setFormData({ ...formData, profileImage: e.target.files[0] });
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    setFormData({ ...formData, profilePicture: file });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
 
-    try {
-      const formDataObj = new FormData();
-      formDataObj.append('username', formData.username);
-      formDataObj.append('email', formData.email);
-      if (formData.profileImage) {
-        formDataObj.append('profileImage', formData.profileImage);
-      }
+    const formDataToSend = new FormData();
+    formDataToSend.append('username', formData.username);
+    formDataToSend.append('email', formData.email);
+    if (formData.profilePicture) {
+      formDataToSend.append('profilePicture', formData.profilePicture);
+    }
 
-      const response = await fetch('http://localhost:5000/admin', {
+    try {
+      const response = await fetch('http://localhost:5000/admin-user-profile', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: formDataObj,
+        body: formDataToSend,
       });
 
-      if (response.ok) {
-        const updatedData = await response.json();
-        setAdminData(updatedData);
-        setMessage('Profil mis à jour avec succès.');
-        setEditMode(false);
-      } else {
-        setMessage('Erreur lors de la mise à jour du profil.');
-      }
+      if (!response.ok) throw new Error('Erreur lors de la mise à jour des données.');
+
+      setIsEditing(false);
+      fetchUserData(); // Refresh user data after submission
     } catch (error) {
-      setMessage('Erreur serveur.');
+      setError(error.message);
     }
   };
 
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl mb-4">Profil de l'Admin</h2>
+  const fetchUserData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Aucun token trouvé. Veuillez vous connecter.');
+      return;
+    }
 
-      {/* Affichage de l'image de profil */}
-      <div className="flex items-center mb-6">
-        {adminData.profileImage ? (
+    try {
+      const response = await fetch('http://localhost:5000/admin-user-profile', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Erreur lors de la récupération des données utilisateur.');
+
+      const fetchedData = await response.json();
+      setUserData(fetchedData);
+      setFormData({ username: fetchedData.username, email: fetchedData.email, profilePicture: null });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  return (
+    <div className="flex items-start bg-white p-6 rounded-lg shadow-lg">
+      <div className="mr-6">
+        {userData?.profilePicture ? (
           <img
-            src={`http://localhost:5000/${adminData.profileImage}`}
-            alt="Photo de profil de l'admin"
-            className="w-24 h-24 rounded-full object-cover border border-gray-300"
+            src={`http://localhost:5000/${userData.profilePicture}`}
+            alt="Photo de profil"
+            className="w-24 h-24 rounded-full border border-gray-300 object-cover"
           />
         ) : (
-          <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-            Aucun image
+          <div className="w-24 h-24 rounded-full border border-gray-300 flex items-center justify-center text-gray-500">
+            <span>Pas d'image</span>
           </div>
         )}
       </div>
-
-      {editMode ? (
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <div className="mb-4">
-            <label className="block text-gray-700">Nom d'utilisateur</label>
-            <input
-              type="text"
-              name="username"
-              placeholder={adminData.username || "Nom d'utilisateur"}
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder={adminData.email || "Email"}
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Photo de profil</label>
-            <input
-              type="file"
-              name="profileImage"
-              onChange={handleImageChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              accept="image/*"
-            />
-          </div>
+      <div className="flex-grow">
+        <h2 className="text-2xl font-bold mb-4">Informations administrateur</h2>
+        {error && <p className="text-red-500">{error}</p>}
+        <div className="mb-4">
+          <p className="font-semibold text-lg">
+            Nom d'utilisateur: <span className="font-normal">{userData?.username}</span>
+          </p>
+          <p className="font-semibold text-lg">
+            Email: <span className="font-normal">{userData?.email}</span>
+          </p>
           <button
-            type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-          >
-            Enregistrer les modifications
-          </button>
-          <button
-            type="button"
-            className="bg-gray-300 text-black py-2 px-4 rounded hover:bg-gray-400 ml-4"
-            onClick={() => setEditMode(false)}
-          >
-            Annuler
-          </button>
-        </form>
-      ) : (
-        <div>
-          <p><strong>Nom d'utilisateur:</strong> {adminData.username}</p>
-          <p><strong>Email:</strong> {adminData.email}</p>
-          <button
-            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-            onClick={() => setEditMode(true)}
+            onClick={() => setIsEditing(true)}
+            className="mt-4 text-blue-500 hover:underline"
           >
             Modifier le profil
           </button>
         </div>
-      )}
-      {message && <p className="mt-4 text-red-500">{message}</p>}
+
+        {isEditing && (
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-gray-700">Nom d'utilisateur</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">Email (non modifiable)</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">Changer la photo de profil</label>
+              <input
+                type="file"
+                onChange={handlePhotoChange}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+            <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+              Enregistrer
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="ml-4 text-gray-500 hover:text-gray-700"
+            >
+              Annuler
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 };
