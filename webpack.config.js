@@ -42,5 +42,5 @@ module.exports = {
             filename: 'index.html' // Nom du fichier généré dans le dossier de sortie
         })
     ],
-    mode: 'development'  // Mode (peut aussi être 'production' pour un build optimisé)
+    mode: 'production'  // Mode (peut aussi être 'production' pour un build optimisé)
 };
