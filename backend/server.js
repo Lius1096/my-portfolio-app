@@ -19,19 +19,15 @@ require('dotenv').config(); // Chargement des variables d'environnement
 // Si authenticateToken est dans un autre fichier
 
 
-// Middleware pour servir les fichiers statiques
-app.use(express.static(path.join(__dirname, 'build')));
 
-// Renvoyer index.html pour toutes les routes non gérées
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
 
 // Chargement de la configuration
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 // Initialisation de l'application Express
 const app = express();
+
+
 
 // Configuration des constantes
 const port = config.PORT;
@@ -43,6 +39,14 @@ const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio';
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
+
+// Middleware pour servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Renvoyer index.html pour toutes les routes non gérées
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // Middleware
 app.use(cors({
