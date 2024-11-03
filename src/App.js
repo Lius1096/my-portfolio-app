@@ -48,6 +48,8 @@ const App = () => {
          <Route path="/demande-projet" element={<ProjectRequestForm />} />
          <Route path="/goodbye" element={<Goodbye />} />
          <Route path="/delete-user" element={<DeleteUser />} />
+         <Route path="*" element={<NotFound />} />
+
 
 
       </Routes>

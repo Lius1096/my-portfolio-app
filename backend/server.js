@@ -20,7 +20,6 @@ require('dotenv').config(); // Chargement des variables d'environnement
 
 
 
-
 // Chargement de la configuration
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
@@ -34,19 +33,23 @@ const port = config.PORT;
 const SESSION_SECRET = config.SESSION_SECRET;
 const SECRET_KEY = process.env.SECRET_KEY || 'votre_clé_secrète'; // Clé secrète dans les variables d'environnement
 
-// Connexion à MongoDB
-const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio';
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
-
+// Connexion à la base de données
+mongoose.connect('mongodb://localhost:27017/portfolio', { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 // Middleware pour servir les fichiers statiques
-app.use(express.static(path.join(__dirname, 'config.json')));
+app.use(express.static(path.join(__dirname, '..', 'config.json')));
 
 // Renvoyer index.html pour toutes les routes non gérées
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
+// Middleware pour servir le dossier public
+app.use(express.static(path.join(__dirname, '..', 'build'))); // 
+
+
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 
 // Middleware
 app.use(cors({
@@ -1168,6 +1171,18 @@ app.get('/admin-user-profile', authenticateJWT, async (req, res) => {
       res.status(500).send('Erreur lors de la mise à jour des données.');
     }
   });
+
+  // Middleware pour servir les fichiers statiques
+//app.use(express.static(path.join(__dirname, '..', 'config.json')));
+
+// Renvoyer index.html pour toutes les routes non gérées
+// Middleware pour servir le dossier public
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
+});
+
+
 
   
 // Démarrer le serveur
