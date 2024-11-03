@@ -15,6 +15,12 @@ module.exports = {
     port: 3000,
     open: true,
     hot: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000', // URL de votre backend
+        changeOrigin: true,
+      },
+    },
     setupMiddlewares: (middlewares, devServer) => {
       if (!devServer) {
         throw new Error('Webpack Dev Server is not defined');

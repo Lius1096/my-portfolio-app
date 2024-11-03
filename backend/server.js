@@ -41,7 +41,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware pour servir les fichiers statiques
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, 'config.json')));
 
 // Renvoyer index.html pour toutes les routes non gérées
 app.get('*', (req, res) => {
