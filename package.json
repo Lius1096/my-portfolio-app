@@ -1,7 +1,6 @@
 {
   "name": "portfolio-web-app",
   "homepage": ".",
-
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -76,8 +75,12 @@
     "npm": "10.5.0"
   },
   "babel": {
-  "presets": ["@babel/preset-env", "@babel/preset-react"],
-  "plugins": ["@babel/plugin-proposal-private-property-in-object"]
-}
-
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-private-property-in-object"
+    ]
+  }
 }
