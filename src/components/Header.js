@@ -43,7 +43,7 @@ const Home = () => {
           <div className="bg-white rounded-full p-1 shadow-md"> {/* Conteneur avec ombre légère */}
             <img src={logo} alt="KETE" className="h-10 w-10 rounded-full" /> {/* Logo avec classes rondes */}
           </div>
-          
+
           <nav>
             <ul className="flex space-x-6">
               <li><a href="home" className="hover:text-accent transition">Accueil</a></li>
@@ -55,13 +55,16 @@ const Home = () => {
               <li><a href="#contact" className="hover:text-accent transition">Contact</a></li>
               <li><a href="login" className="hover:text-accent transition">Connexion</a></li>
               <li><a href="signup" className="hover:text-accent transition">Inscription</a></li>
-              <li><a href="admindashboard" className="hover:text-accent transition">Admin</a></li>
-              <li><a href="userdashboard" className="hover:text-accent transition">User</a></li>
+              {/*
+<li><a href="admindashboard" className="hover:text-accent transition">Admin</a></li>
+<li><a href="userdashboard" className="hover:text-accent transition">User</a></li>
+*/}
+
             </ul>
           </nav>
         </div>
       </header>
-      
+
       {/* Bouton "Retour en haut" */}
       {showTopButton && (
         <button
