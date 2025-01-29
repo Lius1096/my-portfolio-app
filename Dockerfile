@@ -23,13 +23,3 @@ EXPOSE 5000
 CMD ["npm", "start"]
 
 # Ajout des variables directement dans le Dockerfile
-ENV PORT=5000 
-ENV SECRET_KEY=7zKj!aZs3Pv92FShY2R0JQsDp1EX#9
-ENV MONGODB_URI=mongodb://localhost:27017/portfolio 
-ENV EMAIL=juliusdjossou@gmail.com 
-ENV EMAIL_PASSWORD=guulxnsfrprxmjsj 
-ENV GOOGLE_CLIENT_ID=292932120713-7do5rlcq0u9hrgvnkk2o1cad97nl0f4n.apps.googleusercontent.com 
-ENV GOOGLE_CLIENT_SECRET=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 
-ENV FACEBOOK_CLIENT_ID=your-facebook-client-id 
-ENV FACEBOOK_CLIENT_SECRET=your-facebook-client-secret 
-ENV SESSION_SECRET=a7b8d29318b3026330e56781c7b73b7c3990aa47ea42f89692b1803c1aeb3418 
